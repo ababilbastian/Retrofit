@@ -29,14 +29,14 @@ import retrofit2.Response;
 
 public class SplashActivity extends AppCompatActivity {
     TextView lblAppName, lblAppTittle, lblAppVersion;
-    public Session dataSession;
+    public Session data;
     Timer timer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         setupLayout();
-        dataSession = new Session(this);
+        data = new Session(this);
         if (checkInternetConnection()) {
             checkAppVersion();
         }
@@ -61,15 +61,17 @@ public class SplashActivity extends AppCompatActivity {
             status = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE || activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
             Toast.makeText(this, "Koneksi Berhasil", Toast.LENGTH_SHORT).show();
         }else{
-            status = false;
-            Toast.makeText(this, "Tidak ada koneksi", Toast.LENGTH_SHORT).show();
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
+            builder.setMessage("Tidak ada internet");
+            builder.setCancelable(true);
+            builder.setPositiveButton("Keluar!", new DialogInterface.OnClickListener() {
                 @Override
-                public void run() {
+                public void onClick(DialogInterface dialog, int which) {
                     finish();
                 }
-            },2000);
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         }
         return status;
     }
@@ -80,8 +82,12 @@ public class SplashActivity extends AppCompatActivity {
         //lblAppVersion dan lblAppName dimunculkan kembali dengan data dari shared preferences
         //lblAppVersion.setVisibility(View.INVISIBLE);
         //lblAppName.setVisibility(View.INVISIBLE);
-        if(dataSession.isKeepData())
-        lblAppTittle.setText(dataSession.getData());
+        if(data.isKeepData()){
+            lblAppName.setVisibility(View.VISIBLE);
+            lblAppVersion.setVisibility(View.VISIBLE);
+            lblAppName.setText(data.getDataApp());
+            lblAppVersion.setText(data.getDataVersion());
+        }
     }
 
     private void checkAppVersion() {
@@ -90,11 +96,11 @@ public class SplashActivity extends AppCompatActivity {
         call.enqueue(new Callback<AppVersion>() {
             @Override
             public void onResponse(Call<AppVersion> call, Response<AppVersion> response) {
-                Toast.makeText(SplashActivity.this, response.body().getApp(), Toast.LENGTH_SHORT).show();
-                //Todo : 2. Implementasikan Proses Simpan Data Yang didapat dari Server ke SharedPreferences
-                dataSession.setData(response.body().getApp() + " "+response.body().getVersion());
+                //Todo : 2. Implementasikan Proses Simpan Data Yang didapat dari Server ke SharedPreference
                 //Todo : 3. Implementasikan Proses Pindah Ke MainActivity Jika Proses getAppVersion() sukses
                 if(response.body() != null){
+                    data.setDataVersion(response.body().getVersion());
+                    data.setDataApp(response.body().getApp());
                     timer = new Timer();
                     timer.schedule(new TimerTask() {
                         @Override
@@ -103,14 +109,14 @@ public class SplashActivity extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                         }
-                    },4000);
+                    },2000);
                 }
             }
 
             @Override
             public void onFailure(Call<AppVersion> call, Throwable t) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
-                builder.setMessage("Koneksi ke Server Gagal");
+                builder.setMessage("Koneksi ke Server Gagal !!");
                 builder.setCancelable(true);
                 builder.setPositiveButton("Keluar!", new DialogInterface.OnClickListener() {
                     @Override
@@ -118,6 +124,8 @@ public class SplashActivity extends AppCompatActivity {
                         finish();
                     }
                 });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
                 //Todo : 4. Implementasikan Cara Notifikasi Ke user jika terjadi kegagalan koneksi ke server silahkan googling cara yang lain selain menggunakan TOAST
             }
         });

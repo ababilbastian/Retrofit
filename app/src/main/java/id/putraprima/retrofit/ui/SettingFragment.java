@@ -3,7 +3,6 @@ package id.putraprima.retrofit.ui;
 import android.os.Bundle;
 
 import androidx.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
 import id.putraprima.retrofit.R;
 
