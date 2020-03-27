@@ -19,6 +19,7 @@ import id.putraprima.retrofit.SettingActivity;
 import id.putraprima.retrofit.api.helper.ServiceGenerator;
 import id.putraprima.retrofit.api.models.LoginRequest;
 import id.putraprima.retrofit.api.models.LoginResponse;
+import id.putraprima.retrofit.api.models.Session;
 import id.putraprima.retrofit.api.services.ApiInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,7 +28,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     private EditText usernameInput,passwordInput;
     private TextView appTxt,versionTxt;
-    private String username,password,token,token_type;
+    private Session session;
+    private String username,password;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +38,9 @@ public class MainActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.edtPassword);
         appTxt = findViewById(R.id.mainTxtAppName);
         versionTxt = findViewById(R.id.mainTxtAppVersion);
-
+        session = new Session(this);
+        appTxt.setText(session.getDataApp());
+        versionTxt.setText(session.getDataVersion());
     }
 
     @Override
@@ -70,14 +74,10 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if(response.body() != null){
                     Toast.makeText(MainActivity.this, "Koneksi Berhasil", Toast.LENGTH_SHORT).show();
-                    appTxt.setText(response.body().token_type);
-                    versionTxt.setText(String.valueOf(response.body().expires_in));
-                    token = response.body().token;
-                    token_type = response.body().token_type;
+                    session.setToken(response.body().token);
+                    session.setTokenType(response.body().token_type);
                     if(response.body().token != null || response.body().token != ""){
                         Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                        intent.putExtra("token",token);
-                        intent.putExtra("token_type",token_type);
                         startActivity(intent);
                     }else{
                         Toast.makeText(MainActivity.this, "Token Kosong", Toast.LENGTH_SHORT).show();

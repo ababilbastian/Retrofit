@@ -5,6 +5,10 @@ import com.google.gson.annotations.SerializedName;
 
 import id.putraprima.retrofit.api.models.AppVersion;
 import id.putraprima.retrofit.api.models.Data;
+import id.putraprima.retrofit.api.models.EditPassReq;
+import id.putraprima.retrofit.api.models.EditPassRess;
+import id.putraprima.retrofit.api.models.EditProfileReq;
+import id.putraprima.retrofit.api.models.EditProfileRes;
 import id.putraprima.retrofit.api.models.LoginRequest;
 import id.putraprima.retrofit.api.models.LoginResponse;
 import id.putraprima.retrofit.api.models.Profile;
@@ -15,6 +19,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
@@ -30,4 +35,10 @@ public interface ApiInterface{
 
     @GET("/api/auth/me")
     Call<Data<Profile>> showProfile(@Header("Authorization") String token);
+
+    @PATCH("/api/account/profile")
+    Call<EditProfileRes> editProfile(@Header("Authorization") String token,@Body EditProfileReq req);
+
+    @PATCH("/api/account/password")
+    Call<EditPassRess> editPassword(@Header("Authorization") String token,@Body EditPassReq req);
 }

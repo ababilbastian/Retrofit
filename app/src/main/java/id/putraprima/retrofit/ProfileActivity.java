@@ -3,14 +3,18 @@ package id.putraprima.retrofit;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Service;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import id.putraprima.retrofit.api.helper.ServiceGenerator;
 import id.putraprima.retrofit.api.models.Data;
 import id.putraprima.retrofit.api.models.Profile;
+import id.putraprima.retrofit.api.models.Session;
 import id.putraprima.retrofit.api.services.ApiInterface;
+import id.putraprima.retrofit.ui.MainActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -18,17 +22,17 @@ import retrofit2.Response;
 public class ProfileActivity extends AppCompatActivity {
     private String tokenData,tokenTypeData,name,email;
     private TextView emailText,nameText;
+    private Session session;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        session = new Session(this);
         emailText = findViewById(R.id.myEmail);
         nameText = findViewById(R.id.myName);
-        Bundle data = getIntent().getExtras();
-        if(data != null){
-            tokenData = data.getString("token");
-            tokenTypeData = data.getString("token_type");
-        }
+        tokenData = session.getToken();
+        tokenTypeData = session.getTokenType();
         showData();
     }
     
@@ -52,5 +56,22 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(ProfileActivity.this, "Gagal", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void handleEditPass(View view){
+        Intent intent = new Intent(this,EditPassActivity.class);
+        startActivity(intent);
+    }
+
+    public void handleEditProfile(View view){
+        Intent intent = new Intent(this,EditProfileActivity.class);
+        startActivity(intent);
+    }
+
+    public void handleLogout(View view){
+        Intent intent = new Intent(this, MainActivity.class);
+        session.setToken("");
+        session.setTokenType("");
+        startActivity(intent);
     }
 }
